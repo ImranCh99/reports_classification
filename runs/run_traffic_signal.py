@@ -66,7 +66,7 @@ def main():
 
         path = f"experiments/{model_name}.pth" if args.model == "custom" else f"experiments/{model_name}_pretrained.pth"
         
-        bert_trainer = Trainer(classifier, train_loader, val_loader, device=args.device, learning_rate=args.lr, num_epochs=args.epochs, path=path)
+        bert_trainer = Trainer(classifier, train_loader, val_loader, device=args.device, learning_rate=args.lr, num_epochs=args.epochs, model_type=args.model , path=path)
         results = bert_trainer.train()
         training_curves(results)
 
