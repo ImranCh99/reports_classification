@@ -20,6 +20,32 @@ def load_data(file_path):
 
 
 
+def create_corpus_file(file_path, text_column, corpus_file_name):
+    """
+    Given a file path, text column name, and output corpus file path, this function
+    extracts text data and saves it as a corpus file.
+    
+    Args:
+        file_path (str): Path to the input CSV or XLSX file.
+        text_column (str): Name of the column containing the text data.
+        corpus_file_path (str): Path to save the generated corpus file.
+    """
+    df = load_data(file_path)
+
+    if text_column not in df.columns:
+        raise ValueError(f"Column '{text_column}' not found in the file.")
+
+    text_data = df[text_column].dropna().tolist() 
+
+    corpus_file_path = f"experiments/{corpus_file_name}.txt"
+    with open(corpus_file_path, 'w', encoding='utf-8') as f:
+        for text in text_data:
+            f.write(f"{text.strip()}\n")
+
+    print(f"Corpus file saved at: {corpus_file_path}")
+
+
+
 class ReportDataset(Dataset):
     """ Custom Dataset for loading accident/maintenance reports """
     def __init__(self, report, labels, tokenizer, max_length=128):
@@ -51,19 +77,17 @@ class ReportDataset(Dataset):
 
 
 
-def preprocess_data(file_path, tokenizer, test_split=0.1, val_split=0.1):
+def preprocess_data(file_path, text_column, class_column, tokenizer, test_split=0.1, val_split=0.1):
     """
     Loads data, preprocesses it, and splits it into train, validation, and test datasets.
     """
     df = load_data(file_path)
     
-    # Ensure columns exist
     if "description" not in df.columns or "class" not in df.columns:
         raise ValueError("Dataset must contain 'description' and 'class' columns.")
 
-    # Extract descriptions and labels
-    descriptions = df["description"].fillna("No description").tolist()
-    labels = df["class"].astype(int).tolist()
+    descriptions = df[text_column].fillna("No description").tolist()
+    labels = df[class_column].astype(int).tolist()
 
     full_dataset = ReportDataset(descriptions, labels, tokenizer)
 
@@ -77,7 +101,7 @@ def preprocess_data(file_path, tokenizer, test_split=0.1, val_split=0.1):
 
 
 
-def get_tokenizer(tokenizer_type="pretrained", vocab_file=None, corpus_file=None, vocab_size=int, min_frequency=2):
+def get_tokenizer(tokenizer_type="pretrained", vocab_file=None):
     """
     Returns a tokenizer:
     - "pretrained" uses BertTokenizer from Hugging Face (for pre-trained BERT)
@@ -89,14 +113,7 @@ def get_tokenizer(tokenizer_type="pretrained", vocab_file=None, corpus_file=None
     
     elif tokenizer_type == "custom":   # If vocab file is not provided, train the tokenizer on the corpus
         if vocab_file is None:
-            if corpus_file is None:
-                raise ValueError("Corpus file must be provided to train the custom tokenizer.")
-            print(f"Training custom tokenizer on corpus: {corpus_file}")
-            train_tokenizer(corpus_file, vocab_size=vocab_size, min_frequency=min_frequency)
-            vocab_file = os.path.join("models/custom_tokenizer", "vocab.txt")
-
-        if not os.path.exists(vocab_file):
-            raise ValueError(f"Vocab file not found: {vocab_file}")
+            raise ValueError("You must provide a vocab file for custom tokenizer.")
         
         return BertWordPieceTokenizer(vocab_file)
 

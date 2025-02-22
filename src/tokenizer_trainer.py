@@ -1,8 +1,6 @@
-import os
 from tokenizers import BertWordPieceTokenizer
-from transformers import BertTokenizer
 
-def train_tokenizer(corpus_file, vocab_size=int, min_frequency=2, save_dir="models/custom_tokenizer"):
+def train_tokenizer(corpus_file, vocab_size=int, min_frequency=2, vocab_name=str):
     """
     Train a custom BertWordPieceTokenizer on a given corpus and save the model.
     
@@ -18,8 +16,7 @@ def train_tokenizer(corpus_file, vocab_size=int, min_frequency=2, save_dir="mode
                     special_tokens=["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"])
 
 
-    os.makedirs(save_dir, exist_ok=True)
-    tokenizer.save_model(save_dir)
+    tokenizer.save_model(f"experiments/{vocab_name}")
 
-    print(f"Tokenizer trained and saved in '{save_dir}'")
+    print(f"Tokenizer trained and saved in experiments/{vocab_name}")
 
