@@ -3,7 +3,8 @@ import seaborn as sns
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
+import torch
+import random
 
 
 def plot_confusion_matrix(true_labels, predictions, labels=None):
@@ -80,4 +81,14 @@ def training_curves(results):
 
     plt.tight_layout()
     plt.show()
+
+def set_seed(seed: int):
+    """Fixes random number generation for numpy, random, torch, and torch.cuda libraries."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)  
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True  
+    torch.backends.cudnn.benchmark = False 
 
