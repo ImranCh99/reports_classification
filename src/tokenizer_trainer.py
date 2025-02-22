@@ -16,7 +16,7 @@ def train_tokenizer(corpus_file, vocab_size=int, min_frequency=2, vocab_name=str
                     special_tokens=["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"])
 
 
-    tokenizer.save_model(f"experiments/{vocab_name}")
+    tokenizer.save_model("experiments", vocab_name)
 
     print(f"Tokenizer trained and saved in experiments/{vocab_name}")
 

@@ -1,4 +1,4 @@
-from bert import BERTModel
+from .bert import BERTModel
 from transformers import BertModel as HFBertModel
 from torch import nn
 
