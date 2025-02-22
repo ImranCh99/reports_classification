@@ -4,7 +4,6 @@ import torch
 from transformers import BertTokenizer
 from tokenizers import BertWordPieceTokenizer
 from torch.utils.data import Dataset, random_split, DataLoader
-from tokenizer_trainer import train_tokenizer
 
 
 def load_data(file_path):
