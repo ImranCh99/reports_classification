@@ -7,7 +7,7 @@ import torch
 import random
 
 
-def plot_confusion_matrix(true_labels, predictions, labels=None):
+def plot_confusion_matrix(true_labels, predictions):
     """
     Plot a confusion matrix using Seaborn heatmap.
 
@@ -16,10 +16,10 @@ def plot_confusion_matrix(true_labels, predictions, labels=None):
         predictions (list or np.array): The predicted labels of the dataset.
         labels (list, optional): The list of label names (default is None).
     """
-    cm = confusion_matrix(true_labels, predictions, labels=labels)
+    cm = confusion_matrix(true_labels, predictions)
     
     plt.figure(figsize=(6,5))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.xlabel('True labels')
     plt.ylabel('Predicted labels')
     plt.title('Confusion Matrix')

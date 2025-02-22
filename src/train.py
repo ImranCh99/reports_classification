@@ -5,7 +5,7 @@ from torch.optim import AdamW
 from tqdm import tqdm
 
 class EarlyStopping:
-    def __init__(self, patience=5, verbose=False, delta=0, path=str):
+    def __init__(self, patience=5, verbose=False, delta=0, path=str, model_type=str):
         """
         Args:
             patience (int): How long to wait after the last time validation loss improved.
@@ -18,6 +18,7 @@ class EarlyStopping:
         self.delta = delta
         self.path = path
         self.counter = 0
+        self.model_type = model_type
         self.best_score = None
         self.early_stop = False
         self.val_loss_min = float('inf')
@@ -41,7 +42,10 @@ class EarlyStopping:
         """Saves model weights when validation loss decreases."""
         if self.verbose:
             print(f"Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}). Saving model weights...")
-        torch.save(model.state_dict(), self.path)
+        if self.model_type == "pretrained":
+            torch.save(model.classifier.state_dict(), self.path)
+        else:
+            torch.save(model.state_dict(), self.path)
         self.val_loss_min = val_loss
 
 
@@ -59,11 +63,15 @@ class Trainer:
         # self.scheduler = get_scheduler(
         #     "linear", optimizer=self.optimizer, num_warmup_steps=0, num_training_steps=len(train_dataloader) * num_epochs
         # )
-        self.early_stopper = EarlyStopping(patience=5, verbose=True, path=str)
+        self.early_stopper = EarlyStopping(patience=5, verbose=True, path=path)
 
     def train_step(self, batch):
         self.model.train()
-        input_ids, attention_mask, token_type_ids, labels = [b.to(self.device) for b in batch]
+        
+        input_ids = batch["input_ids"].to(self.device)
+        attention_mask = batch["attention_mask"].to(self.device)
+        token_type_ids = batch["token_type_ids"].to(self.device)
+        labels = batch["label"].to(self.device)
 
         self.optimizer.zero_grad()
         logits = self.model(input_ids, attention_mask, token_type_ids)
@@ -79,7 +87,11 @@ class Trainer:
 
     def validation_step(self, batch):
         self.model.eval()
-        input_ids, attention_mask, token_type_ids, labels = [b.to(self.device) for b in batch]
+
+        input_ids = batch["input_ids"].to(self.device)
+        attention_mask = batch["attention_mask"].to(self.device)
+        token_type_ids = batch["token_type_ids"].to(self.device)
+        labels = batch["label"].to(self.device)
 
         with torch.no_grad():
             logits = self.model(input_ids, attention_mask, token_type_ids)
