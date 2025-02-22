@@ -40,9 +40,9 @@ def compute_metrics(true_labels, predictions):
     """
 
     accuracy = accuracy_score(true_labels, predictions)
-    precision = precision_score(true_labels, predictions, average='binary')  # Adjust for multi-class if needed
-    recall = recall_score(true_labels, predictions, average='binary')  # Adjust for multi-class if needed
-    f1 = f1_score(true_labels, predictions, average='binary')  # Adjust for multi-class if needed
+    precision = precision_score(true_labels, predictions, average='macro')
+    recall = recall_score(true_labels, predictions, average='macro')  
+    f1 = f1_score(true_labels, predictions, average='macro') 
     
     return {
         'accuracy': accuracy,
