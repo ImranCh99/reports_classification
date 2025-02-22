@@ -50,7 +50,7 @@ def compute_metrics(true_labels, predictions):
         'f1': f1
     }
 
-def plot_training_validation_curves(results):
+def training_curves(results):
     """
     Plot training and validation curves for loss and accuracy.
 
