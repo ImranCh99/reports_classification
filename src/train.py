@@ -51,7 +51,7 @@ class EarlyStopping:
 
 
 class Trainer:
-    def __init__(self, model, train_dataloader, val_dataloader, device, learning_rate=float, num_epochs=int, path=str):
+    def __init__(self, model, train_dataloader, val_dataloader, device, learning_rate=float, num_epochs=int, model_type=str, path=str):
         self.model = model.to(device)
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -63,7 +63,7 @@ class Trainer:
         # self.scheduler = get_scheduler(
         #     "linear", optimizer=self.optimizer, num_warmup_steps=0, num_training_steps=len(train_dataloader) * num_epochs
         # )
-        self.early_stopper = EarlyStopping(patience=5, verbose=True, path=path)
+        self.early_stopper = EarlyStopping(patience=5, verbose=True, path=path, model_type=model_type)
 
     def train_step(self, batch):
         self.model.train()
