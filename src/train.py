@@ -47,7 +47,7 @@ class EarlyStopping:
 
 
 class Trainer:
-    def __init__(self, model, train_dataloader, val_dataloader, device, learning_rate=float, num_epochs=int):
+    def __init__(self, model, train_dataloader, val_dataloader, device, learning_rate=float, num_epochs=int, path=str):
         self.model = model.to(device)
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader

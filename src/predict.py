@@ -4,14 +4,12 @@ from models import bert_classifier
 from utils import plot_confusion_matrix, compute_metrics 
 
 
-def make_predictions(model_path, vocab_path, test_loader):
+def make_predictions(model, test_loader):
     """
     Make predictions using a trained model.
     Metrics evaluated: accuracy, precision, recall, and F1 score.
     Confusion matrix plot.
     """
-    model = bert_classifier() 
-    model.load_state_dict(torch.load(model_path)) 
     model.eval()  
 
     predictions = []
