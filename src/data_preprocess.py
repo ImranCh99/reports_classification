@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import torch
 from transformers import BertTokenizer
-from tokenizers import BertWordPieceTokenizer
 from torch.utils.data import Dataset, random_split, DataLoader
 
 
@@ -57,36 +56,36 @@ class ReportDataset(Dataset):
         return len(self.report)
 
     def __getitem__(self, idx):
-        text = str(self.report[idx])
+        report = self.report[idx]
         label = self.labels[idx]
 
         encoding = self.tokenizer(
-            text,
-            truncation=True,
-            padding="max_length",
-            max_length=self.max_length,
-            return_tensors="pt",
+            report, 
+            padding='max_length', 
+            max_length=self.max_length, 
+            truncation=True, 
+            return_tensors='pt'
         )
 
         return {
-            "input_ids": encoding["input_ids"].squeeze(0),
-            "attention_mask": encoding["attention_mask"].squeeze(0),
-            "label": torch.tensor(label, dtype=torch.long),
+            'input_ids': encoding['input_ids'].squeeze(0),  # Remove batch dimension
+            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'token_type_ids': encoding['token_type_ids'].squeeze(0) if 'token_type_ids' in encoding else torch.zeros(self.max_length, dtype=torch.long),
+            'label': torch.tensor(label, dtype=torch.long)
         }
 
 
-
-def preprocess_data(file_path, text_column, class_column, tokenizer, test_split=0.1, val_split=0.1):
+def preprocess_data(file_path, text_column, class_column, tokenizer, label_map, test_split=0.1, val_split=0.1):
     """
     Loads data, preprocesses it, and splits it into train, validation, and test datasets.
     """
     df = load_data(file_path)
     
-    if "description" not in df.columns or "class" not in df.columns:
+    if f"{text_column}" not in df.columns or f"{class_column}" not in df.columns:
         raise ValueError("Dataset must contain 'description' and 'class' columns.")
 
     descriptions = df[text_column].fillna("No description").tolist()
-    labels = df[class_column].astype(int).tolist()
+    labels = df[class_column].map(label_map).tolist()
 
     full_dataset = ReportDataset(descriptions, labels, tokenizer)
 
@@ -114,7 +113,7 @@ def get_tokenizer(tokenizer_type="pretrained", vocab_file=None):
         if vocab_file is None:
             raise ValueError("You must provide a vocab file for custom tokenizer.")
         
-        return BertWordPieceTokenizer(vocab_file)
+        return BertTokenizer(vocab_file)
 
     else:
         raise ValueError("Invalid tokenizer type. Choose 'pretrained' or 'custom'.")

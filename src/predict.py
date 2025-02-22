@@ -1,10 +1,10 @@
 import torch
 import numpy as np
-from models import bert_classifier 
-from utils import plot_confusion_matrix, compute_metrics 
+from .models import bert_classifier 
+from .utils import plot_confusion_matrix, compute_metrics 
 
 
-def make_predictions(model, test_loader):
+def make_predictions(model, test_loader, device):
     """
     Make predictions using a trained model.
     Metrics evaluated: accuracy, precision, recall, and F1 score.
@@ -16,12 +16,14 @@ def make_predictions(model, test_loader):
     true_labels = []
 
     with torch.no_grad():  
-        for inputs, labels in test_loader:
-            inputs = inputs.to(model.device)  
-            labels = labels.to(model.device)  
+        for batch in test_loader:
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            token_type_ids = batch['token_type_ids'].to(device)
+            labels = batch['label'].to(device) 
 
-            outputs = model(inputs) 
-            _, predicted = torch.max(outputs, 1) 
+            outputs = model(input_ids, attention_mask, token_type_ids)
+            _, predicted = torch.max(outputs, 1)
             
             predictions.extend(predicted.cpu().numpy()) 
             true_labels.extend(labels.cpu().numpy()) 
