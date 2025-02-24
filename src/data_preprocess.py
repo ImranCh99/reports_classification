@@ -5,12 +5,23 @@ from transformers import BertTokenizer
 from torch.utils.data import Dataset, random_split, DataLoader
 
 
-def load_data(file_path):
-    """ Load CSV or Excel data and return a dataframe """
+
+def load_data(file_path=None, df=None):
+    """ 
+    Load CSV or Excel data into a DataFrame.
+    If a file path is provided, it loads from the file.
+    If a DataFrame is provided, it returns the given DataFrame.
+    """
+    if df is not None:
+        return df  # Use provided DataFrame directly
+
+    if file_path is None:
+        raise ValueError("Either file_path or df must be provided.")
+
     if file_path.endswith('.csv'):
         df = pd.read_csv(file_path)
     elif file_path.endswith('.xlsx'):
-        df = pd.read_excel(file_path)
+        df = pd.read_excel(file_path, skiprows=3)  # Handles aviation dataset properly
     else:
         raise ValueError("Unsupported file format. Use CSV or XLSX.")
 
@@ -75,14 +86,14 @@ class ReportDataset(Dataset):
         }
 
 
-def preprocess_data(file_path, text_column, class_column, tokenizer, label_map, test_split=0.1, val_split=0.1):
+def preprocess_data(file_path=None, df=None, text_column=None, class_column=None, tokenizer=None, label_map=None, test_split=0.1, val_split=0.1):
     """
-    Loads data, preprocesses it, and splits it into train, validation, and test datasets.
+    Loads data (from file or provided DataFrame), preprocesses it, and splits into train, validation, and test datasets.
     """
-    df = load_data(file_path)
-    
-    if f"{text_column}" not in df.columns or f"{class_column}" not in df.columns:
-        raise ValueError("Dataset must contain 'description' and 'class' columns.")
+    df = load_data(file_path=file_path, df=df)
+
+    if text_column not in df.columns or class_column not in df.columns:
+        raise ValueError(f"Dataset must contain '{text_column}' and '{class_column}' columns.")
 
     descriptions = df[text_column].fillna("No description").tolist()
     labels = df[class_column].map(label_map).tolist()
