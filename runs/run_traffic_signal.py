@@ -53,7 +53,7 @@ def main():
 
         tokenizer = get_tokenizer(tokenizer_type="custom" if args.model == "custom" else "pretrained", vocab_file=f"experiments/{tokenizer_name}-vocab.txt" if args.model == "custom" else None)
 
-        train_dataset, val_dataset, test_dataset = preprocess_data(data_path, text_column, class_column, tokenizer, label_map)
+        train_dataset, val_dataset, test_dataset = preprocess_data(file_path=data_path, text_column=text_column, class_column=class_column, tokenizer=tokenizer, label_map=label_map)
         train_loader, val_loader, _ = create_dataloader(train_dataset, val_dataset, test_dataset, batch_size=args.batch_size)
 
         config = get_bert_config(args.vocab_size if args.model == "custom" else 30522, model_type=args.model)
@@ -66,14 +66,14 @@ def main():
 
         path = f"experiments/{model_name}.pth" if args.model == "custom" else f"experiments/{model_name}_pretrained.pth"
         
-        bert_trainer = Trainer(classifier, train_loader, val_loader, device=args.device, learning_rate=args.lr, num_epochs=args.epochs, model_type=args.model , path=path)
+        bert_trainer = Trainer(classifier, train_loader, val_loader, device=args.device, learning_rate=args.lr, num_epochs=args.epochs, model_type=args.model, path=path)
         results = bert_trainer.train()
         training_curves(results)
 
     elif args.mode == "test":
 
         tokenizer = get_tokenizer(tokenizer_type="custom" if args.model == "custom" else "pretrained", vocab_file=f"experiments/{tokenizer_name}-vocab.txt" if args.model == "custom" else None)
-        train_dataset, val_dataset, test_dataset = preprocess_data(data_path, text_column, class_column, tokenizer, label_map)
+        train_dataset, val_dataset, test_dataset = preprocess_data(file_path=data_path, text_column=text_column, class_column=class_column, tokenizer=tokenizer, label_map=label_map)
         _, _, test_loader = create_dataloader(train_dataset, val_dataset, test_dataset, batch_size=args.batch_size)
 
         config = get_bert_config(args.vocab_size if args.model == "custom" else 30522, model_type=args.model)
