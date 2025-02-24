@@ -42,7 +42,7 @@ def main():
     if args.mode == "train":
 
         if not os.path.exists(f"experiments/{corpus_name}.txt"):
-            create_corpus_file(data_path, text_column, corpus_name)
+            create_corpus_file(file_path=data_path, text_column=text_column, corpus_file_name=corpus_name)
         else:
             print(f"Corpus file already exists at experiments/{corpus_name}.txt. Skipping creation.")
 

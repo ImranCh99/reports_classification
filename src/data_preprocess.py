@@ -29,24 +29,25 @@ def load_data(file_path=None, df=None):
 
 
 
-def create_corpus_file(file_path, text_column, corpus_file_name):
+def create_corpus_file(file_path=None, df=None, text_column=None, corpus_file_name=None):
     """
-    Given a file path, text column name, and output corpus file path, this function
-    extracts text data and saves it as a corpus file.
-    
+    Extracts text data from a dataset (CSV/XLSX file or DataFrame) and saves it as a corpus file.
+
     Args:
-        file_path (str): Path to the input CSV or XLSX file.
+        file_path (str, optional): Path to the input CSV or XLSX file.
+        df (pd.DataFrame, optional): Preloaded DataFrame.
         text_column (str): Name of the column containing the text data.
-        corpus_file_path (str): Path to save the generated corpus file.
+        corpus_file_name (str): Name of the output corpus file (without extension).
     """
-    df = load_data(file_path)
+    df = load_data(file_path=file_path, df=df)
 
     if text_column not in df.columns:
-        raise ValueError(f"Column '{text_column}' not found in the file.")
+        raise ValueError(f"Column '{text_column}' not found in the dataset.")
 
-    text_data = df[text_column].dropna().tolist() 
+    text_data = df[text_column].dropna().tolist()
 
     corpus_file_path = f"experiments/{corpus_file_name}.txt"
+
     with open(corpus_file_path, 'w', encoding='utf-8') as f:
         for text in text_data:
             f.write(f"{text.strip()}\n")
@@ -96,7 +97,7 @@ def preprocess_data(file_path=None, df=None, text_column=None, class_column=None
         raise ValueError(f"Dataset must contain '{text_column}' and '{class_column}' columns.")
 
     descriptions = df[text_column].fillna("No description").tolist()
-    labels = df[class_column].map(label_map).tolist()
+    labels = df[class_column].map(label_map).astype(int).tolist()
 
     full_dataset = ReportDataset(descriptions, labels, tokenizer)
 
